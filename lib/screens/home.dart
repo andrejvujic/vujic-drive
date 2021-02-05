@@ -13,14 +13,50 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final db = Database(uid: FirebaseAuth.instance.currentUser.uid);
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  Future<void> createNewFolder(BuildContext context) async {}
+
+  Future<void> createNewFile() async {}
+
+  void createNew(BuildContext context) {
+    scaffoldKey.currentState.showBottomSheet(
+      (context) {
+        return Wrap(
+          children: <Widget>[
+            ListTile(
+              leading: Icon(Icons.folder),
+              title: Text('Folder'),
+              onTap: () => createNewFolder(context),
+            ),
+            ListTile(
+              leading: Icon(Icons.file_upload),
+              title: Text('Fajl'),
+              onTap: () => createNewFile(),
+            ),
+          ],
+        );
+      },
+      backgroundColor: Theme.of(context).primaryColor,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AppService>(
       builder: (BuildContext context, AppService app, Widget _) {
         return Scaffold(
-          appBar: AppBar(),
+          key: scaffoldKey,
+          appBar: AppBar(
+            title: Text(
+              'Vujić Drive',
+            ),
+          ),
           drawer: HomeDrawer(),
+          floatingActionButton: FloatingActionButton(
+            child: Icon(Icons.add),
+            onPressed: () => createNew(context),
+          ),
           body: StreamBuilder(
             stream: db.currentUserData,
             builder: (BuildContext context, AsyncSnapshot snapshot) {
