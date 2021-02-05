@@ -27,6 +27,8 @@ dependencies:
   firebase_core:
   firebase_auth:
   cloud_firestore:
+  google_sign_in:
+  flutter_auth_buttons:
   provider:
   cached_network_image:
 

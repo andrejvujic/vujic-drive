@@ -1,4 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:vujic_drive/screens/home.dart';
+import 'package:vujic_drive/screens/login.dart';
 
 class Auth extends StatefulWidget {
   @override
@@ -8,6 +12,13 @@ class Auth extends StatefulWidget {
 class _AuthState extends State<Auth> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return StreamProvider(
+      create: (context) => FirebaseAuth.instance.authStateChanges(),
+      builder: (context, _) {
+        final user = context.watch<User>();
+
+        return (user == null) ? Login() : Home();
+      },
+    );
   }
 }
