@@ -19,7 +19,9 @@ class _FoldersState extends State<Folders> {
     for (QueryDocumentSnapshot folder in folders) {
       final Map<String, dynamic> data = folder.data();
       folderIcons.add(
-        FolderIcon(),
+        FolderIcon(
+          folderData: data,
+        ),
       );
     }
 
