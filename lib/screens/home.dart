@@ -11,34 +11,69 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   final db = Database(uid: FirebaseAuth.instance.currentUser.uid);
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  double fabIconRotation = 0.0;
+  AnimationController controller;
+  Animation<double> animation;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 200),
+    );
+
+    animation =
+        Tween<double>(begin: 0, end: 90 * 180 / 3.14).animate(controller)
+          ..addListener(
+            () {
+              setState(() => fabIconRotation = animation.value);
+            },
+          );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 
   Future<void> createNewFolder(BuildContext context) async {}
 
   Future<void> createNewFile() async {}
 
-  void createNew(BuildContext context) {
+  void showCreateNew(BuildContext context) {
+    controller.forward();
     scaffoldKey.currentState.showBottomSheet(
       (context) {
-        return Wrap(
-          children: <Widget>[
-            ListTile(
-              leading: Icon(Icons.folder),
-              title: Text('Folder'),
-              onTap: () => createNewFolder(context),
-            ),
-            ListTile(
-              leading: Icon(Icons.file_upload),
-              title: Text('Fajl'),
-              onTap: () => createNewFile(),
-            ),
-          ],
+        return WillPopScope(
+          onWillPop: () async => Future.value(false),
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.folder),
+                title: Text('Folder'),
+                onTap: () => createNewFolder(context),
+              ),
+              ListTile(
+                leading: Icon(Icons.file_upload),
+                title: Text('Fajl'),
+                onTap: () => createNewFile(),
+              ),
+            ],
+          ),
         );
       },
       backgroundColor: Theme.of(context).primaryColor,
     );
+  }
+
+  void hideCreateNew(BuildContext context) {
+    controller.reverse();
+    Navigator.pop(context);
   }
 
   @override
@@ -54,8 +89,13 @@ class _HomeState extends State<Home> {
           ),
           drawer: HomeDrawer(),
           floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.add),
-            onPressed: () => createNew(context),
+            child: Transform.rotate(
+              angle: fabIconRotation,
+              child: Icon(Icons.add),
+            ),
+            onPressed: () => (fabIconRotation > 0.0)
+                ? hideCreateNew(context)
+                : showCreateNew(context),
           ),
           body: StreamBuilder(
             stream: db.currentUserData,
