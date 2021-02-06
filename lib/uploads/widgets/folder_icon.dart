@@ -4,38 +4,124 @@ class FolderIcon extends StatelessWidget {
   final Map<String, dynamic> folderData;
   FolderIcon({@required this.folderData});
 
+  final settings = <Map<String, dynamic>>[
+    {
+      'title': 'Otvori',
+      'icon': Icons.folder,
+      'value': 'open',
+    },
+    {
+      'title': 'Obriši',
+      'icon': Icons.delete,
+      'value': 'delete',
+    },
+    {
+      'title': 'Preimenuj',
+      'icon': Icons.edit,
+      'value': 'rename',
+    },
+    {
+      'title': 'Podešavanja',
+      'icon': Icons.settings,
+      'value': 'settings',
+    },
+  ];
+
+  Future<dynamic> perfomSelectedAction(dynamic value) {
+    switch (value) {
+      case 'open':
+        openFolder();
+        break;
+      case 'delete':
+        deleteFolder();
+        break;
+      case 'rename':
+        renameFolder();
+        break;
+      case 'settings':
+        openFolderSettings();
+        break;
+      default:
+        break;
+    }
+
+    return null;
+  }
+
+  void openFolder() {}
+  void deleteFolder() {}
+  void renameFolder() {}
+  void openFolderSettings() {}
+
+  List<PopupMenuEntry<dynamic>> getMenuTiles() {
+    final List<PopupMenuEntry<dynamic>> menuTiles = [];
+    for (final setting in settings) {
+      menuTiles.add(
+        PopupMenuItem(
+          value: setting['value'],
+          child: Row(
+            children: <Widget>[
+              Icon(
+                setting['icon'],
+                color: Colors.tealAccent,
+                size: 20.0,
+              ),
+              const SizedBox(width: 8.0),
+              Text(
+                '${setting['title']}',
+                style: const TextStyle(
+                  fontSize: 16.0,
+                  color: Colors.tealAccent,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return menuTiles;
+  }
+
   void onTap() {}
 
-  void onLongPress(LongPressStartDetails longPressStartDetails) {}
+  void onLongPress(
+    BuildContext context,
+    LongPressStartDetails longPressStartDetails,
+  ) {
+    final double pressX = longPressStartDetails.globalPosition.dx,
+        pressY = longPressStartDetails.globalPosition.dy;
+
+    showMenu(
+      color: Theme.of(context).primaryColor,
+      context: context,
+      position: RelativeRect.fromLTRB(pressX, pressY, pressX, pressY),
+      items: getMenuTiles(),
+    ).then(perfomSelectedAction);
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      onLongPressStart: onLongPress,
+      onLongPressStart: (LongPressStartDetails longPressStartDetails) =>
+          onLongPress(context, longPressStartDetails),
       child: Padding(
-        padding: EdgeInsets.all(8.0),
-        child: OutlineButton(
-          borderSide: BorderSide.none,
-          onPressed: () => null,
-          onLongPress: () => null,
-          child: Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Icon(
-                  Icons.folder,
-                  size: 94.0,
-                ),
-                Text(
-                  '${this.folderData['name']}',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 16.0),
-                )
-              ],
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Icon(
+              Icons.folder,
+              size: 94.0,
             ),
-          ),
+            Text(
+              '${this.folderData['name']}',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 16.0),
+            )
+          ],
         ),
       ),
     );
