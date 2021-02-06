@@ -7,6 +7,7 @@ import 'package:vujic_drive/uploads/uploads.dart';
 import 'package:vujic_drive/widgets/custom_alert.dart';
 import 'package:vujic_drive/widgets/home_drawer/home_drawer.dart';
 import 'package:vujic_drive/widgets/info_alert.dart';
+import 'package:vujic_drive/widgets/loading_overlay.dart';
 import 'package:vujic_drive/widgets/text_input.dart';
 
 class Home extends StatefulWidget {
@@ -94,11 +95,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  Future<void> addFolder(String name, {String parent = ''}) async {
+  Future<void> addFolder(String name, AppService app,
+      {String parent = ''}) async {
     Navigator.pop(context);
 
     if (name.isNotEmpty) {
-      await db.addFolder(name, parent);
+      app.startLoading();
+      try {
+        await db.addFolder(name, parent);
+      } catch (e) {}
+      app.stopLoading();
     } else {
       InfoAlert.show(
         context,
@@ -109,7 +115,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     }
   }
 
-  Future<void> createNewFolder(BuildContext context) async {
+  Future<void> createNewFolder(BuildContext context, AppService app) async {
     folderCtrlr.clear();
 
     final actions = <Widget>[
@@ -124,7 +130,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         ),
       ),
       TextButton(
-        onPressed: () => addFolder(folderCtrlr.text),
+        onPressed: () => addFolder(folderCtrlr.text, app),
         child: Text(
           'DODAJ',
           style: TextStyle(
@@ -151,7 +157,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   Future<void> createNewFile() async {}
 
-  void showCreateNew(BuildContext context) {
+  void showCreateNew(BuildContext context, AppService app) {
     rotationCtrlr.forward();
     colorCtrlr1.forward();
     colorCtrlr2.forward();
@@ -168,7 +174,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 ListTile(
                   leading: Icon(Icons.folder),
                   title: Text('Folder'),
-                  onTap: () => createNewFolder(context),
+                  onTap: () => createNewFolder(context, app),
                 ),
                 ListTile(
                   leading: Icon(Icons.file_upload),
@@ -197,49 +203,52 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Consumer<AppService>(
       builder: (BuildContext context, AppService app, Widget _) {
-        return Scaffold(
-          resizeToAvoidBottomInset: false,
-          resizeToAvoidBottomPadding: false,
-          key: scaffoldKey,
-          appBar: AppBar(
-            title: Text(
-              'Vujić Drive',
-            ),
-          ),
-          drawer: HomeDrawer(),
-          floatingActionButton: FloatingActionButton(
-            backgroundColor: fabColor,
-            child: Transform.rotate(
-              angle: fabIconRotation,
-              child: Icon(
-                Icons.add,
-                color: fabIconChildColor,
-                size: fabIconChildSize,
+        return LoadingOverlay(
+          isLoading: app.isLoading,
+          child: Scaffold(
+            resizeToAvoidBottomInset: false,
+            resizeToAvoidBottomPadding: false,
+            key: scaffoldKey,
+            appBar: AppBar(
+              title: Text(
+                'Vujić Drive',
               ),
             ),
-            onPressed: () => (fabIconRotation > 0.0)
-                ? hideCreateNew(context)
-                : showCreateNew(context),
-          ),
-          body: StreamBuilder(
-            stream: db.currentUserData,
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              if (!snapshot.hasData) {
-                return Center(
-                  child: CircularProgressIndicator(),
+            drawer: HomeDrawer(),
+            floatingActionButton: FloatingActionButton(
+              backgroundColor: fabColor,
+              child: Transform.rotate(
+                angle: fabIconRotation,
+                child: Icon(
+                  Icons.add,
+                  color: fabIconChildColor,
+                  size: fabIconChildSize,
+                ),
+              ),
+              onPressed: () => (fabIconRotation > 0.0)
+                  ? hideCreateNew(context)
+                  : showCreateNew(context, app),
+            ),
+            body: StreamBuilder(
+              stream: db.currentUserData,
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+
+                final Map<String, dynamic> userData = snapshot.data.data();
+
+                if (userData == null) {
+                  db.addUserData(FirebaseAuth.instance.currentUser);
+                }
+
+                return Uploads(
+                  uid: FirebaseAuth.instance.currentUser.uid,
                 );
-              }
-
-              final Map<String, dynamic> userData = snapshot.data.data();
-
-              if (userData == null) {
-                db.addUserData(FirebaseAuth.instance.currentUser);
-              }
-
-              return Uploads(
-                uid: FirebaseAuth.instance.currentUser.uid,
-              );
-            },
+              },
+            ),
           ),
         );
       },

@@ -14,7 +14,7 @@ class LoadingOverlay extends StatefulWidget {
     this.progressIndicator,
     this.progressIndicatorChild,
     this.isLoading = false,
-    this.overlayColor = Colors.white,
+    this.overlayColor = Colors.black,
     this.overlayColorOpacity = 0.5,
   });
 }
