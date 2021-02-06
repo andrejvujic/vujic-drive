@@ -15,19 +15,19 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   final db = Database(uid: FirebaseAuth.instance.currentUser.uid);
   final scaffoldKey = GlobalKey<ScaffoldState>();
   double fabIconRotation = 0.0;
-  AnimationController controller;
+  AnimationController animationCtrlr;
   Animation<double> animation;
 
   @override
   void initState() {
     super.initState();
-    controller = AnimationController(
+    animationCtrlr = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 200),
     );
 
     animation =
-        Tween<double>(begin: 0, end: 90 * 180 / 3.14).animate(controller)
+        Tween<double>(begin: 0.0, end: 90.0 * 180.0 / 3.14).animate(animationCtrlr)
           ..addListener(
             () {
               setState(() => fabIconRotation = animation.value);
@@ -37,7 +37,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   @override
   void dispose() {
-    controller.dispose();
+    animationCtrlr.dispose();
     super.dispose();
   }
 
@@ -46,7 +46,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Future<void> createNewFile() async {}
 
   void showCreateNew(BuildContext context) {
-    controller.forward();
+    animationCtrlr.forward();
     scaffoldKey.currentState.showBottomSheet(
       (context) {
         return WillPopScope(
@@ -72,7 +72,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   void hideCreateNew(BuildContext context) {
-    controller.reverse();
+    animationCtrlr.animateBack(0.0);
     Navigator.pop(context);
   }
 
