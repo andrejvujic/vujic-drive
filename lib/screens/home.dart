@@ -13,29 +13,73 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
+class _HomeState extends State<Home> with TickerProviderStateMixin {
   final db = Database(uid: FirebaseAuth.instance.currentUser.uid);
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
   TextEditingController folderCtrlr;
-  double fabIconRotation = 0.0;
-  AnimationController rotationCtrlr;
-  Animation<double> animation;
+
+  double fabIconRotation = 0.0, fabIconChildSize = 24.0;
+  AnimationController rotationCtrlr, colorCtrlr1, colorCtrlr2, sizeCtrlr;
+  Animation<double> rotationAnimation, sizeAnimation;
+  Animation<Color> colorAnimation1, colorAnimation2;
+
+  Color fabColor = Colors.tealAccent, fabIconChildColor = Colors.black;
 
   @override
   void initState() {
     super.initState();
     folderCtrlr = TextEditingController();
+
+    colorCtrlr1 = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 200),
+    );
+
+    colorAnimation1 = ColorTween(begin: Colors.tealAccent, end: Colors.red)
+        .animate(colorCtrlr1)
+          ..addListener(() {
+            setState(
+              () => fabColor = colorAnimation1.value,
+            );
+          });
+
+    colorCtrlr2 = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 200),
+    );
+
+    colorAnimation2 =
+        ColorTween(begin: Colors.black, end: Colors.white).animate(colorCtrlr2)
+          ..addListener(() {
+            setState(
+              () => fabIconChildColor = colorAnimation2.value,
+            );
+          });
+
     rotationCtrlr = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 300),
     );
 
-    animation = Tween<double>(begin: 0.0, end: 45.0 * 3.14 / 180.0)
+    sizeCtrlr = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+    );
+
+    sizeAnimation = Tween<double>(begin: 24.0, end: 28.0).animate(sizeCtrlr)
+      ..addListener(
+        () {
+          setState(() => fabIconChildSize = sizeAnimation.value);
+        },
+      );
+
+    rotationAnimation = Tween<double>(begin: 0.0, end: 45.0 * 3.14 / 180.0)
         .animate(rotationCtrlr)
           ..addListener(
             () {
-              setState(() => fabIconRotation = animation.value);
-              print(animation.value);
+              setState(() => fabIconRotation = rotationAnimation.value);
+              print(rotationAnimation.value);
             },
           );
   }
@@ -44,6 +88,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   void dispose() {
     folderCtrlr.dispose();
     rotationCtrlr.dispose();
+    colorCtrlr1.dispose();
+    colorCtrlr2.dispose();
+    sizeCtrlr.dispose();
     super.dispose();
   }
 
@@ -91,23 +138,30 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   void showCreateNew(BuildContext context) {
     rotationCtrlr.forward();
+    colorCtrlr1.forward();
+    colorCtrlr2.forward();
+    sizeCtrlr.forward();
+
     scaffoldKey.currentState.showBottomSheet(
       (context) {
         return WillPopScope(
           onWillPop: () async => Future.value(false),
-          child: Wrap(
-            children: <Widget>[
-              ListTile(
-                leading: Icon(Icons.folder),
-                title: Text('Folder'),
-                onTap: () => createNewFolder(context),
-              ),
-              ListTile(
-                leading: Icon(Icons.file_upload),
-                title: Text('Fajl'),
-                onTap: () => createNewFile(),
-              ),
-            ],
+          child: GestureDetector(
+            onVerticalDragStart: (_) => null,
+            child: Wrap(
+              children: <Widget>[
+                ListTile(
+                  leading: Icon(Icons.folder),
+                  title: Text('Folder'),
+                  onTap: () => createNewFolder(context),
+                ),
+                ListTile(
+                  leading: Icon(Icons.file_upload),
+                  title: Text('Fajl'),
+                  onTap: () => createNewFile(),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -117,6 +171,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   void hideCreateNew(BuildContext context) {
     rotationCtrlr.reverse();
+    colorCtrlr1.reverse();
+    colorCtrlr2.reverse();
+    sizeCtrlr.reverse();
+
     Navigator.pop(context);
   }
 
@@ -135,9 +193,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           ),
           drawer: HomeDrawer(),
           floatingActionButton: FloatingActionButton(
+            backgroundColor: fabColor,
             child: Transform.rotate(
               angle: fabIconRotation,
-              child: Icon(Icons.add),
+              child: Icon(
+                Icons.add,
+                color: fabIconChildColor,
+                size: fabIconChildSize,
+              ),
             ),
             onPressed: () => (fabIconRotation > 0.0)
                 ? hideCreateNew(context)
