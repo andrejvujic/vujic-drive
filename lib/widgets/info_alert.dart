@@ -36,6 +36,7 @@ class InfoAlert {
                   style: TextStyle(
                     fontSize: 16.0,
                     fontWeight: FontWeight.bold,
+                    color: Theme.of(context).accentColor,
                   ),
                 ),
                 onPressed: () => Navigator.pop(context),

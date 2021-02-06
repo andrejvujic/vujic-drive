@@ -6,6 +6,7 @@ import 'package:vujic_drive/services/db.dart';
 import 'package:vujic_drive/uploads/uploads.dart';
 import 'package:vujic_drive/widgets/custom_alert.dart';
 import 'package:vujic_drive/widgets/home_drawer/home_drawer.dart';
+import 'package:vujic_drive/widgets/info_alert.dart';
 import 'package:vujic_drive/widgets/text_input.dart';
 
 class Home extends StatefulWidget {
@@ -67,7 +68,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       duration: Duration(milliseconds: 300),
     );
 
-    sizeAnimation = Tween<double>(begin: 24.0, end: 28.0).animate(sizeCtrlr)
+    sizeAnimation = Tween<double>(begin: 24.0, end: 27.0).animate(sizeCtrlr)
       ..addListener(
         () {
           setState(() => fabIconChildSize = sizeAnimation.value);
@@ -79,7 +80,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           ..addListener(
             () {
               setState(() => fabIconRotation = rotationAnimation.value);
-              print(rotationAnimation.value);
             },
           );
   }
@@ -94,7 +94,20 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  Future<void> addFolder(String name) async {}
+  Future<void> addFolder(String name, {String parent = ''}) async {
+    Navigator.pop(context);
+
+    if (name.isNotEmpty) {
+      await db.addFolder(name, parent);
+    } else {
+      InfoAlert.show(
+        context,
+        title: 'Greška',
+        text:
+            'Nije bilo moguće dodati folder jer niste unijeli ništa za ime foldera. Unesite ime pa pokušajte ponovo',
+      );
+    }
+  }
 
   Future<void> createNewFolder(BuildContext context) async {
     folderCtrlr.clear();
@@ -106,6 +119,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           'OTKAŽI',
           style: TextStyle(
             fontWeight: FontWeight.bold,
+            color: Theme.of(context).accentColor,
           ),
         ),
       ),
@@ -115,6 +129,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           'DODAJ',
           style: TextStyle(
             fontWeight: FontWeight.bold,
+            color: Theme.of(context).accentColor,
           ),
         ),
       ),

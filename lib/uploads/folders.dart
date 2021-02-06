@@ -23,6 +23,7 @@ class _FoldersState extends State<Folders> {
       );
     }
 
+    print(folderIcons.length);
     return folderIcons;
   }
 
