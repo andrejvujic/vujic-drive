@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:vujic_drive/services/app.dart';
 import 'package:vujic_drive/services/db.dart';
 import 'package:vujic_drive/uploads/uploads.dart';
+import 'package:vujic_drive/widgets/custom_alert.dart';
 import 'package:vujic_drive/widgets/home_drawer/home_drawer.dart';
+import 'package:vujic_drive/widgets/text_input.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -14,39 +16,81 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   final db = Database(uid: FirebaseAuth.instance.currentUser.uid);
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  TextEditingController folderCtrlr;
   double fabIconRotation = 0.0;
-  AnimationController animationCtrlr;
+  AnimationController rotationCtrlr;
   Animation<double> animation;
 
   @override
   void initState() {
     super.initState();
-    animationCtrlr = AnimationController(
+    folderCtrlr = TextEditingController();
+    rotationCtrlr = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 200),
+      duration: Duration(milliseconds: 300),
     );
 
-    animation =
-        Tween<double>(begin: 0.0, end: 90.0 * 180.0 / 3.14).animate(animationCtrlr)
+    animation = Tween<double>(begin: 0.0, end: 45.0 * 3.14 / 180.0)
+        .animate(rotationCtrlr)
           ..addListener(
             () {
               setState(() => fabIconRotation = animation.value);
+              print(animation.value);
             },
           );
   }
 
   @override
   void dispose() {
-    animationCtrlr.dispose();
+    folderCtrlr.dispose();
+    rotationCtrlr.dispose();
     super.dispose();
   }
 
-  Future<void> createNewFolder(BuildContext context) async {}
+  Future<void> addFolder(String name) async {}
+
+  Future<void> createNewFolder(BuildContext context) async {
+    folderCtrlr.clear();
+
+    final actions = <Widget>[
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: Text(
+          'OTKAŽI',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      TextButton(
+        onPressed: () => addFolder(folderCtrlr.text),
+        child: Text(
+          'DODAJ',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    ];
+
+    CustomAlert.show(
+      context,
+      title: 'Novi folder',
+      children: <Widget>[
+        TextInput(
+          controller: folderCtrlr,
+          labelText: 'Naziv foldera',
+          hintText: 'Naziv foldera',
+        ),
+      ],
+      actions: actions,
+    );
+  }
 
   Future<void> createNewFile() async {}
 
   void showCreateNew(BuildContext context) {
-    animationCtrlr.forward();
+    rotationCtrlr.forward();
     scaffoldKey.currentState.showBottomSheet(
       (context) {
         return WillPopScope(
@@ -72,7 +116,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   void hideCreateNew(BuildContext context) {
-    animationCtrlr.animateBack(0.0);
+    rotationCtrlr.reverse();
     Navigator.pop(context);
   }
 
@@ -81,6 +125,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     return Consumer<AppService>(
       builder: (BuildContext context, AppService app, Widget _) {
         return Scaffold(
+          resizeToAvoidBottomInset: false,
+          resizeToAvoidBottomPadding: false,
           key: scaffoldKey,
           appBar: AppBar(
             title: Text(

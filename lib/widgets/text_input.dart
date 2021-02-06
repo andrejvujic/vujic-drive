@@ -60,7 +60,7 @@ class _TextInputState extends State<TextInput> {
           border: InputBorder.none,
           hintText: widget.hintText,
           labelText: widget.labelText,
-          fillColor: Colors.grey[200],
+          fillColor: Theme.of(context).primaryColor,
         ),
       ),
     );
