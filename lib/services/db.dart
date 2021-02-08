@@ -41,6 +41,8 @@ class Database {
     await this.files.doc(id).set(data);
   }
 
+  Future<void> removeFile(String id) async => await files.doc(id).delete();
+
   Future<void> addFolder(String name, String parent) async {
     final id = getRandomId(this.folders);
 

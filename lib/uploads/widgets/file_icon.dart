@@ -1,6 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:vujic_drive/services/db.dart';
+import 'package:vujic_drive/services/storage.dart';
 import 'package:vujic_drive/widgets/info_alert.dart';
+import 'package:vujic_drive/widgets/yes_no_alert.dart';
 
 class FileIcon extends StatelessWidget {
   final Map<String, dynamic> fileData;
@@ -10,6 +14,7 @@ class FileIcon extends StatelessWidget {
     this.parentGlobalPath,
   });
 
+  final db = Database(uid: FirebaseAuth.instance.currentUser.uid);
   final settings = <Map<String, dynamic>>[
     {
       'title': 'Preuzmi',
@@ -34,7 +39,7 @@ class FileIcon extends StatelessWidget {
         downloadFile(context);
         break;
       case 'delete':
-        deleteFile();
+        deleteFile(context);
         break;
       case 'rename':
         renameFile();
@@ -61,8 +66,30 @@ class FileIcon extends StatelessWidget {
     }
   }
 
+  void deleteFile(BuildContext context) async {
+    YesNoAlert.show(
+      context,
+      title: 'Upozorenje',
+      text: 'Da li ste sigurni da želite da obrišete ovaj fajl zauvijek?',
+      onYesPressed: () async {
+        try {
+          await StorageService.deleteByDownloadUrl(
+            this.fileData['downloadUrl'],
+          );
+          await db.removeFile(this.fileData['id']);
+        } catch (e) {
+          InfoAlert.show(
+            context,
+            title: 'Ups...',
+            text:
+                'Došlo je do neočekivane greške prilikom brisanja ovog fajla. Pokušajte ponovo.',
+          );
+        }
+      },
+    );
+  }
+
   void renameFile() {}
-  void deleteFile() {}
 
   List<PopupMenuEntry<dynamic>> getMenuTiles() {
     final List<PopupMenuEntry<dynamic>> menuTiles = [];
