@@ -137,6 +137,7 @@ class FolderIcon extends StatelessWidget {
             ),
             Text(
               '${this.folderData['name']}',
+              textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 16.0),

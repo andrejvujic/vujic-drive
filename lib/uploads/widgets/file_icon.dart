@@ -31,7 +31,6 @@ class FileIcon extends StatelessWidget {
       case 'download':
         downloadFile();
         break;
-
       case 'delete':
         deleteFile();
         break;
