@@ -19,6 +19,11 @@ class _UploadsState extends State<Uploads> {
         Folders(
           parent: widget.folderId,
         ),
+        Divider(
+          color: Theme.of(context).primaryColor,
+          height: 0.0,
+          thickness: 1.0,
+        ),
         Files(
           parent: widget.folderId,
         ),

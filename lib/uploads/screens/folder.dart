@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vujic_drive/services/app.dart';
 import 'package:vujic_drive/services/db.dart';
+import 'package:vujic_drive/uploads/screens/upload_file.dart';
 import 'package:vujic_drive/uploads/uploads.dart';
+import 'package:vujic_drive/utils/route_builders.dart';
 import 'package:vujic_drive/widgets/custom_alert.dart';
 import 'package:vujic_drive/widgets/info_alert.dart';
 import 'package:vujic_drive/widgets/loading_overlay.dart';
@@ -27,40 +29,27 @@ class _FolderState extends State<Folder> with TickerProviderStateMixin {
   TextEditingController folderCtrlr;
 
   double fabIconRotation = 0.0, fabIconChildSize = 24.0;
-  AnimationController rotationCtrlr, colorCtrlr1, colorCtrlr2, sizeCtrlr;
+  AnimationController rotationCtrlr, colorCtrlr, sizeCtrlr;
   Animation<double> rotationAnimation, sizeAnimation;
-  Animation<Color> colorAnimation1, colorAnimation2;
+  Animation<Color> colorAnimation, colorAnimation2;
 
-  Color fabColor = Colors.tealAccent, fabIconChildColor = Colors.black;
+  Color fabColor = Colors.teal, fabIconChildColor = Colors.white;
 
   @override
   void initState() {
     super.initState();
     folderCtrlr = TextEditingController();
 
-    colorCtrlr1 = AnimationController(
+    colorCtrlr = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 200),
     );
 
-    colorAnimation1 = ColorTween(begin: Colors.tealAccent, end: Colors.red)
-        .animate(colorCtrlr1)
+    colorAnimation =
+        ColorTween(begin: Colors.teal, end: Colors.red).animate(colorCtrlr)
           ..addListener(() {
             setState(
-              () => fabColor = colorAnimation1.value,
-            );
-          });
-
-    colorCtrlr2 = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 200),
-    );
-
-    colorAnimation2 =
-        ColorTween(begin: Colors.black, end: Colors.white).animate(colorCtrlr2)
-          ..addListener(() {
-            setState(
-              () => fabIconChildColor = colorAnimation2.value,
+              () => fabColor = colorAnimation.value,
             );
           });
 
@@ -94,8 +83,7 @@ class _FolderState extends State<Folder> with TickerProviderStateMixin {
   void dispose() {
     folderCtrlr.dispose();
     rotationCtrlr.dispose();
-    colorCtrlr1.dispose();
-    colorCtrlr2.dispose();
+    colorCtrlr.dispose();
     sizeCtrlr.dispose();
     super.dispose();
   }
@@ -164,12 +152,18 @@ class _FolderState extends State<Folder> with TickerProviderStateMixin {
     );
   }
 
-  Future<void> createNewFile() async {}
+  void createNewFile(BuildContext context) {
+    Navigator.push(
+      context,
+      RouteBuilders.buildSlideRoute(
+        UploadFile(),
+      ),
+    );
+  }
 
   void showCreateNew(BuildContext context, AppService app) {
     rotationCtrlr.forward();
-    colorCtrlr1.forward();
-    colorCtrlr2.forward();
+    colorCtrlr.forward();
     sizeCtrlr.forward();
 
     scaffoldKey.currentState.showBottomSheet(
@@ -188,7 +182,7 @@ class _FolderState extends State<Folder> with TickerProviderStateMixin {
                 ListTile(
                   leading: Icon(Icons.file_upload),
                   title: Text('Fajl'),
-                  onTap: () => createNewFile(),
+                  onTap: () => createNewFile(context),
                 ),
               ],
             ),
@@ -201,8 +195,7 @@ class _FolderState extends State<Folder> with TickerProviderStateMixin {
 
   void hideCreateNew(BuildContext context) {
     rotationCtrlr.reverse();
-    colorCtrlr1.reverse();
-    colorCtrlr2.reverse();
+    colorCtrlr.reverse();
     sizeCtrlr.reverse();
 
     Navigator.pop(context);

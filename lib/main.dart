@@ -27,8 +27,13 @@ class App extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.teal,
         accentColor: Colors.tealAccent,
+        cursorColor: Colors.tealAccent,
         brightness: Brightness.dark,
         appBarTheme: AppBarTheme(centerTitle: true),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          backgroundColor: Colors.teal,
+          foregroundColor: Colors.white,
+        ),
         fontFamily: 'Poppins',
       ),
       home: Auth(),
