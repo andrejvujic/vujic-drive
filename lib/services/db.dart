@@ -41,14 +41,32 @@ class Database {
     await this.folders.doc(id).set(data);
   }
 
+  /*
   Stream<QuerySnapshot> get currentUserRootFolders => this
       .folders
       .orderBy('createdOn', descending: true)
       .where('allowAccessTo', arrayContains: this.uid)
       .where('parent', isEqualTo: '')
       .snapshots();
+  */
 
+  /*
   Stream<QuerySnapshot> get currentUserRootFiles => this
+      .files
+      .orderBy('createdOn', descending: true)
+      .where('allowAccessTo', arrayContains: this.uid)
+      .where('parent', isEqualTo: '')
+      .snapshots();
+  */
+
+  Stream<QuerySnapshot> getFoldersByParent(String id) => this
+      .folders
+      .orderBy('createdOn', descending: true)
+      .where('allowAccessTo', arrayContains: this.uid)
+      .where('parent', isEqualTo: '')
+      .snapshots();
+
+  Stream<QuerySnapshot> getFilesByParent(String id) => this
       .files
       .orderBy('createdOn', descending: true)
       .where('allowAccessTo', arrayContains: this.uid)

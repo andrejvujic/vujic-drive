@@ -7,7 +7,8 @@ class Uploads extends StatefulWidget {
   _UploadsState createState() => _UploadsState();
 
   final String uid;
-  Uploads({@required this.uid});
+  final String folderId;
+  Uploads({@required this.uid, this.folderId = ''});
 }
 
 class _UploadsState extends State<Uploads> {
@@ -15,8 +16,12 @@ class _UploadsState extends State<Uploads> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        Folders(),
-        Files(),
+        Folders(
+          parent: widget.folderId,
+        ),
+        Files(
+          parent: widget.folderId,
+        ),
       ],
     );
   }

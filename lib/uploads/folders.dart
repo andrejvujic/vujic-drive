@@ -7,6 +7,9 @@ import 'package:vujic_drive/uploads/widgets/folder_icon.dart';
 class Folders extends StatefulWidget {
   @override
   _FoldersState createState() => _FoldersState();
+
+  final String parent;
+  Folders({this.parent = ''});
 }
 
 class _FoldersState extends State<Folders> {
@@ -31,7 +34,7 @@ class _FoldersState extends State<Folders> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: db.currentUserRootFolders,
+      stream: db.getFoldersByParent(widget.parent),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (!snapshot.hasData) {
           return Expanded(

@@ -7,6 +7,9 @@ import 'package:vujic_drive/uploads/widgets/file_icon.dart';
 class Files extends StatefulWidget {
   @override
   _FilesState createState() => _FilesState();
+
+  final String parent;
+  Files({this.parent = ''});
 }
 
 class _FilesState extends State<Files> {
@@ -29,7 +32,7 @@ class _FilesState extends State<Files> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: db.currentUserRootFiles,
+      stream: db.getFilesByParent(widget.parent),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (!snapshot.hasData) {
           return Expanded(
