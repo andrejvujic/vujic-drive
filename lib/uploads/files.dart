@@ -22,7 +22,9 @@ class _FilesState extends State<Files> {
     for (QueryDocumentSnapshot folder in folders) {
       final Map<String, dynamic> data = folder.data();
       folderIcons.add(
-        FileIcon(),
+        FileIcon(
+          fileData: data,
+        ),
       );
     }
 
