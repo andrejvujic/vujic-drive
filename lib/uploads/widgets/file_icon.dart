@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:vujic_drive/widgets/info_alert.dart';
 
 class FileIcon extends StatelessWidget {
   final Map<String, dynamic> fileData;
@@ -29,7 +31,7 @@ class FileIcon extends StatelessWidget {
   Future<dynamic> perfomSelectedAction(BuildContext context, dynamic value) {
     switch (value) {
       case 'download':
-        downloadFile();
+        downloadFile(context);
         break;
       case 'delete':
         deleteFile();
@@ -44,7 +46,21 @@ class FileIcon extends StatelessWidget {
     return null;
   }
 
-  void downloadFile() {}
+  void downloadFile(BuildContext context) async {
+    final url = '${this.fileData['downloadUrl']}';
+
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      InfoAlert.show(
+        context,
+        title: 'Ups...',
+        text:
+            'Naišli smo na grešku dok smo pokušavali da preuzmemo vaš fajl. Pokušajte ponovo.',
+      );
+    }
+  }
+
   void renameFile() {}
   void deleteFile() {}
 
@@ -78,7 +94,7 @@ class FileIcon extends StatelessWidget {
     return menuTiles;
   }
 
-  void onTap(BuildContext context) => null;
+  void onTap(BuildContext context) => downloadFile(context);
 
   void onLongPress(
     BuildContext context,
