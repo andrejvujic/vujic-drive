@@ -141,7 +141,7 @@ class _FolderState extends State<Folder> with TickerProviderStateMixin {
 
     CustomAlert.show(
       context,
-      title: 'Novi folder',
+      title: 'Objavi novi folder',
       children: <Widget>[
         TextInput(
           controller: folderCtrlr,
@@ -179,12 +179,12 @@ class _FolderState extends State<Folder> with TickerProviderStateMixin {
               children: <Widget>[
                 ListTile(
                   leading: Icon(Icons.folder),
-                  title: Text('Folder'),
+                  title: Text('Novi folder'),
                   onTap: () => createNewFolder(context, app),
                 ),
                 ListTile(
                   leading: Icon(Icons.file_upload),
-                  title: Text('Fajl'),
+                  title: Text('Novi fajlovi'),
                   onTap: () => createNewFile(
                     context,
                     widget.folderGlobalPath,

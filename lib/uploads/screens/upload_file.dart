@@ -121,7 +121,7 @@ class _UploadFileState extends State<UploadFile> {
           child: Scaffold(
             appBar: AppBar(
               title: Text(
-                'Novi fajl',
+                'Objavi nove fajlove',
               ),
             ),
             floatingActionButton: FloatingActionButton(
