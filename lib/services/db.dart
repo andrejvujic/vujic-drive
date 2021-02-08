@@ -32,7 +32,7 @@ class Database {
       'id': id,
       'createdBy': this.uid,
       'createdOn': Timestamp.now(),
-      'parent': '',
+      'parent': parent,
       'allowAccessTo': <String>[
         this.uid,
       ],

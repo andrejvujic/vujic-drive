@@ -56,6 +56,7 @@ class FolderIcon extends StatelessWidget {
       RouteBuilders.buildSlideRoute(
         Folder(
           folderId: this.folderData['id'],
+          folderName: this.folderData['name'],
         ),
       ),
     );

@@ -5,7 +5,6 @@ import 'package:vujic_drive/services/app.dart';
 import 'package:vujic_drive/services/db.dart';
 import 'package:vujic_drive/uploads/uploads.dart';
 import 'package:vujic_drive/widgets/custom_alert.dart';
-import 'package:vujic_drive/widgets/home_drawer/home_drawer.dart';
 import 'package:vujic_drive/widgets/info_alert.dart';
 import 'package:vujic_drive/widgets/loading_overlay.dart';
 import 'package:vujic_drive/widgets/text_input.dart';
@@ -14,8 +13,11 @@ class Folder extends StatefulWidget {
   @override
   _FolderState createState() => _FolderState();
 
-  final String folderId;
-  Folder({this.folderId = ''});
+  final String folderId, folderName;
+  Folder({
+    this.folderId = '',
+    this.folderName = '',
+  });
 }
 
 class _FolderState extends State<Folder> with TickerProviderStateMixin {
@@ -133,7 +135,11 @@ class _FolderState extends State<Folder> with TickerProviderStateMixin {
         ),
       ),
       TextButton(
-        onPressed: () => addFolder(folderCtrlr.text, app),
+        onPressed: () => addFolder(
+          folderCtrlr.text,
+          app,
+          parent: widget.folderId,
+        ),
         child: Text(
           'DODAJ',
           style: TextStyle(
@@ -214,10 +220,10 @@ class _FolderState extends State<Folder> with TickerProviderStateMixin {
             key: scaffoldKey,
             appBar: AppBar(
               title: Text(
-                'Vujić Drive',
+                '${widget.folderName}',
               ),
+              toolbarHeight: (widget.folderId == '') ? 0.0 : kToolbarHeight,
             ),
-            drawer: HomeDrawer(),
             floatingActionButton: FloatingActionButton(
               backgroundColor: fabColor,
               child: Transform.rotate(
@@ -232,26 +238,9 @@ class _FolderState extends State<Folder> with TickerProviderStateMixin {
                   ? hideCreateNew(context)
                   : showCreateNew(context, app),
             ),
-            body: StreamBuilder(
-              stream: db.currentUserData,
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-
-                final Map<String, dynamic> userData = snapshot.data.data();
-
-                if (userData == null) {
-                  db.addUserData(FirebaseAuth.instance.currentUser);
-                }
-
-                return Uploads(
-                  uid: FirebaseAuth.instance.currentUser.uid,
-                  folderId: widget.folderId,
-                );
-              },
+            body: Uploads(
+              uid: FirebaseAuth.instance.currentUser.uid,
+              folderId: widget.folderId,
             ),
           ),
         );
