@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:vujic_drive/services/db.dart';
 import 'package:vujic_drive/uploads/screens/folder.dart';
 import 'package:vujic_drive/widgets/home_drawer/home_drawer.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class Home extends StatefulWidget {
   @override
