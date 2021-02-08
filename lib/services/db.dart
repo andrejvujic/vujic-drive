@@ -43,6 +43,11 @@ class Database {
 
   Future<void> removeFile(String id) async => await files.doc(id).delete();
 
+  Future<void> renameFile(String name, Map<String, dynamic> data) async {
+    data['name'] = name;
+    await files.doc(data['id']).set(data);
+  }
+
   Future<void> addFolder(String name, String parent) async {
     final id = getRandomId(this.folders);
 
@@ -58,6 +63,13 @@ class Database {
     };
 
     await this.folders.doc(id).set(data);
+  }
+
+  Future<void> removeFolder(String id) async => await files.doc(id).delete();
+
+  Future<void> renameFolder(String name, Map<String, dynamic> data) async {
+    data['name'] = name;
+    await folders.doc(data['id']).set(data);
   }
 
   /*

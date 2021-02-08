@@ -1,8 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:vujic_drive/services/db.dart';
 import 'package:vujic_drive/uploads/screens/folder.dart';
 import 'package:vujic_drive/utils/route_builders.dart';
+import 'package:vujic_drive/widgets/custom_alert.dart';
+import 'package:vujic_drive/widgets/info_alert.dart';
+import 'package:vujic_drive/widgets/text_input.dart';
 
-class FolderIcon extends StatelessWidget {
+class FolderIcon extends StatefulWidget {
   final Map<String, dynamic> folderData;
   final String parentGlobalPath;
   FolderIcon({
@@ -10,16 +15,18 @@ class FolderIcon extends StatelessWidget {
     this.parentGlobalPath,
   });
 
+  @override
+  _FolderIconState createState() => _FolderIconState();
+}
+
+class _FolderIconState extends State<FolderIcon> {
+  final db = Database(uid: FirebaseAuth.instance.currentUser.uid);
+
   final settings = <Map<String, dynamic>>[
     {
       'title': 'Otvori',
       'icon': Icons.folder,
       'value': 'open',
-    },
-    {
-      'title': 'Obriši',
-      'icon': Icons.delete,
-      'value': 'delete',
     },
     {
       'title': 'Preimenuj',
@@ -33,16 +40,27 @@ class FolderIcon extends StatelessWidget {
     },
   ];
 
+  TextEditingController folderCtrlr;
+
+  @override
+  void initState() {
+    super.initState();
+    folderCtrlr = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    folderCtrlr.dispose();
+    super.dispose();
+  }
+
   Future<dynamic> perfomSelectedAction(BuildContext context, dynamic value) {
     switch (value) {
       case 'open':
         openFolder(context);
         break;
-      case 'delete':
-        deleteFolder();
-        break;
       case 'rename':
-        renameFolder();
+        renameFolder(context);
         break;
       case 'settings':
         openFolderSettings();
@@ -59,16 +77,74 @@ class FolderIcon extends StatelessWidget {
       context,
       RouteBuilders.buildSlideRoute(
         Folder(
-          folderId: this.folderData['id'],
-          folderName: this.folderData['name'],
-          folderGlobalPath: '${this.parentGlobalPath}/${this.folderData['id']}',
+          folderId: widget.folderData['id'],
+          folderName: widget.folderData['name'],
+          folderGlobalPath:
+              '${widget.parentGlobalPath}/${widget.folderData['id']}',
         ),
       ),
     );
   }
 
-  void deleteFolder() {}
-  void renameFolder() {}
+  Future<void> renameFolder(BuildContext context) async {
+    folderCtrlr.text = widget.folderData['name'];
+
+    CustomAlert.show(
+      context,
+      title: 'Preimenuj folder',
+      children: <Widget>[
+        TextInput(
+          controller: folderCtrlr,
+          labelText: 'Ime foldera',
+          hintText: 'Ime foldera',
+        ),
+      ],
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(
+            'OTKAŽI',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).accentColor,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () async {
+            Navigator.pop(context);
+            if (folderCtrlr.text.isNotEmpty) {
+              try {
+                await db.renameFolder(folderCtrlr.text, widget.folderData);
+              } catch (e) {
+                InfoAlert.show(
+                  context,
+                  title: 'Ups...',
+                  text:
+                      'Došlo je do greške prilikom mijenjanja imena ovog foldera. Pokušajte ponovo.',
+                );
+              }
+            } else {
+              InfoAlert.show(
+                context,
+                title: 'Greška',
+                text:
+                    'Novo ime foldera ne smije biti prazno. Popunite ga, pa pokušajte ponovo.',
+              );
+            }
+          },
+          child: Text(
+            'POTVRDI',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.tealAccent,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   void openFolderSettings() {}
 
   List<PopupMenuEntry<dynamic>> getMenuTiles() {
@@ -136,7 +212,7 @@ class FolderIcon extends StatelessWidget {
               size: 94.0,
             ),
             Text(
-              '${this.folderData['name']}',
+              '${widget.folderData['name']}',
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
