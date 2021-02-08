@@ -13,6 +13,9 @@ import 'package:vujic_drive/widgets/text_input.dart';
 class Folder extends StatefulWidget {
   @override
   _FolderState createState() => _FolderState();
+
+  final String folderId;
+  Folder({this.folderId = ''});
 }
 
 class _FolderState extends State<Folder> with TickerProviderStateMixin {
@@ -246,6 +249,7 @@ class _FolderState extends State<Folder> with TickerProviderStateMixin {
 
                 return Uploads(
                   uid: FirebaseAuth.instance.currentUser.uid,
+                  folderId: widget.folderId,
                 );
               },
             ),

@@ -63,14 +63,14 @@ class Database {
       .folders
       .orderBy('createdOn', descending: true)
       .where('allowAccessTo', arrayContains: this.uid)
-      .where('parent', isEqualTo: '')
+      .where('parent', isEqualTo: id)
       .snapshots();
 
   Stream<QuerySnapshot> getFilesByParent(String id) => this
       .files
       .orderBy('createdOn', descending: true)
       .where('allowAccessTo', arrayContains: this.uid)
-      .where('parent', isEqualTo: '')
+      .where('parent', isEqualTo: id)
       .snapshots();
 
   Stream<DocumentSnapshot> get currentUserData =>

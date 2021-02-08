@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:vujic_drive/uploads/screens/folder.dart';
+import 'package:vujic_drive/utils/route_builders.dart';
 
 class FolderIcon extends StatelessWidget {
   final Map<String, dynamic> folderData;
@@ -27,10 +29,10 @@ class FolderIcon extends StatelessWidget {
     },
   ];
 
-  Future<dynamic> perfomSelectedAction(dynamic value) {
+  Future<dynamic> perfomSelectedAction(BuildContext context, dynamic value) {
     switch (value) {
       case 'open':
-        openFolder();
+        openFolder(context);
         break;
       case 'delete':
         deleteFolder();
@@ -48,7 +50,17 @@ class FolderIcon extends StatelessWidget {
     return null;
   }
 
-  void openFolder() {}
+  void openFolder(BuildContext context) {
+    Navigator.push(
+      context,
+      RouteBuilders.buildSlideRoute(
+        Folder(
+          folderId: this.folderData['id'],
+        ),
+      ),
+    );
+  }
+
   void deleteFolder() {}
   void renameFolder() {}
   void openFolderSettings() {}
@@ -83,7 +95,7 @@ class FolderIcon extends StatelessWidget {
     return menuTiles;
   }
 
-  void onTap() {}
+  void onTap(BuildContext context) => openFolder(context);
 
   void onLongPress(
     BuildContext context,
@@ -97,13 +109,15 @@ class FolderIcon extends StatelessWidget {
       context: context,
       position: RelativeRect.fromLTRB(pressX, pressY, pressX, pressY),
       items: getMenuTiles(),
-    ).then(perfomSelectedAction);
+    ).then(
+      (value) => perfomSelectedAction(context, value),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () => onTap(context),
       onLongPressStart: (LongPressStartDetails longPressStartDetails) =>
           onLongPress(context, longPressStartDetails),
       child: Padding(
