@@ -35,6 +35,11 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
                           .withOpacity(widget.overlayColorOpacity),
                     ),
                     widget.progressIndicator ?? CircularProgressIndicator(),
+                    widget.progressIndicatorChild ??
+                        Container(
+                          width: 0.0,
+                          height: 0.0,
+                        ),
                   ],
                 ),
               )

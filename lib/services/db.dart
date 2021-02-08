@@ -24,6 +24,22 @@ class Database {
     await this.users.doc(this.uid).set(data);
   }
 
+  Future<void> addFile(
+      String id, String name, String downloadUrl, String parent) async {
+    Map<String, dynamic> data = {
+      'name': name,
+      'id': id,
+      'createdBy': this.uid,
+      'createdOn': Timestamp.now(),
+      'parent': parent,
+      'allowAccessTo': <String>[
+        this.uid,
+      ],
+    };
+
+    await this.files.doc(id).set(data);
+  }
+
   Future<void> addFolder(String name, String parent) async {
     final id = getRandomId(this.folders);
 

@@ -22,7 +22,7 @@ class _UploadsState extends State<Uploads> {
       children: <Widget>[
         Folders(
           parent: widget.folderId,
-        parentGlobalPath: widget.folderGlobalPath,
+          parentGlobalPath: widget.folderGlobalPath,
         ),
         Divider(
           color: Theme.of(context).primaryColor,

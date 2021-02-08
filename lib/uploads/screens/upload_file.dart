@@ -1,8 +1,13 @@
+import 'dart:io';
 import 'dart:ui';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vujic_drive/services/app.dart';
+import 'package:vujic_drive/services/db.dart';
+import 'package:vujic_drive/services/storage.dart';
 import 'package:vujic_drive/widgets/info_alert.dart';
 import 'package:vujic_drive/widgets/loading_overlay.dart';
 
@@ -15,6 +20,7 @@ class UploadFile extends StatefulWidget {
 }
 
 class _UploadFileState extends State<UploadFile> {
+  final db = Database(uid: FirebaseAuth.instance.currentUser.uid);
   TextEditingController fileCtrlr;
   List<PlatformFile> selectedFiles = <PlatformFile>[];
 
@@ -30,7 +36,47 @@ class _UploadFileState extends State<UploadFile> {
     super.dispose();
   }
 
-  Future<void> uploadFiles(AppService app) async {}
+  Future<void> uploadFiles(AppService app) async {
+    final parent = widget.folderGlobalPath.split('/').last;
+
+    app.startLoading();
+    try {
+      for (int i = selectedFiles.length - 1; i > -1; i--) {
+        final file = selectedFiles[i];
+        final fileName = file.name;
+        final fileId = db.files.doc().id;
+
+        final fileDownloadUrl = await StorageService.uploadFile(
+          '${widget.folderGlobalPath}/$fileId',
+          File(file.path),
+        ).then(
+          (value) => value.ref.getDownloadURL(),
+        );
+
+        await db.addFile(
+          fileId,
+          fileName,
+          fileDownloadUrl,
+          parent,
+        );
+
+        setState(
+          () => selectedFiles..removeAt(i),
+        );
+      }
+    } catch (e) {
+      await InfoAlert.show(
+        context,
+        title: 'Ups...',
+        text: 'Došlo je do neočekivane greške prilikom objavljivanja fajlova.',
+      );
+      app.stopLoading();
+      return;
+    }
+
+    app.stopLoading();
+    Navigator.pop(context);
+  }
 
   Future<void> selectFiles(AppService app) async {
     app.startLoading();

@@ -1,0 +1,10 @@
+import 'dart:io';
+
+import 'package:firebase_storage/firebase_storage.dart';
+
+class StorageService {
+  static final storage = FirebaseStorage.instance;
+
+  static UploadTask uploadFile(String uploadPath, File fileToUpload) =>
+      storage.ref('$uploadPath').putFile(fileToUpload);
+}
