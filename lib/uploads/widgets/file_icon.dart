@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:vujic_drive/services/db.dart';
 import 'package:vujic_drive/services/storage.dart';
+import 'package:vujic_drive/widgets/custom_alert.dart';
 import 'package:vujic_drive/widgets/info_alert.dart';
+import 'package:vujic_drive/widgets/text_input.dart';
 import 'package:vujic_drive/widgets/yes_no_alert.dart';
 
-class FileIcon extends StatelessWidget {
+class FileIcon extends StatefulWidget {
   final Map<String, dynamic> fileData;
   final String parentGlobalPath;
   FileIcon({
@@ -14,7 +16,13 @@ class FileIcon extends StatelessWidget {
     this.parentGlobalPath,
   });
 
+  @override
+  _FileIconState createState() => _FileIconState();
+}
+
+class _FileIconState extends State<FileIcon> {
   final db = Database(uid: FirebaseAuth.instance.currentUser.uid);
+
   final settings = <Map<String, dynamic>>[
     {
       'title': 'Preuzmi',
@@ -33,6 +41,20 @@ class FileIcon extends StatelessWidget {
     },
   ];
 
+  TextEditingController fileCtrlr;
+
+  @override
+  void initState() {
+    super.initState();
+    fileCtrlr = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    fileCtrlr.dispose();
+    super.dispose();
+  }
+
   Future<dynamic> perfomSelectedAction(BuildContext context, dynamic value) {
     switch (value) {
       case 'download':
@@ -42,7 +64,7 @@ class FileIcon extends StatelessWidget {
         deleteFile(context);
         break;
       case 'rename':
-        renameFile();
+        renameFile(context);
         break;
       default:
         break;
@@ -52,7 +74,7 @@ class FileIcon extends StatelessWidget {
   }
 
   void downloadFile(BuildContext context) async {
-    final url = '${this.fileData['downloadUrl']}';
+    final url = '${widget.fileData['downloadUrl']}';
 
     if (await canLaunch(url)) {
       await launch(url);
@@ -74,9 +96,9 @@ class FileIcon extends StatelessWidget {
       onYesPressed: () async {
         try {
           await StorageService.deleteByDownloadUrl(
-            this.fileData['downloadUrl'],
+            widget.fileData['downloadUrl'],
           );
-          await db.removeFile(this.fileData['id']);
+          await db.removeFile(widget.fileData['id']);
         } catch (e) {
           InfoAlert.show(
             context,
@@ -89,7 +111,64 @@ class FileIcon extends StatelessWidget {
     );
   }
 
-  void renameFile() {}
+  Future<void> renameFile(BuildContext context) async {
+    fileCtrlr.text = widget.fileData['name'];
+
+    CustomAlert.show(
+      context,
+      title: 'Preimenuj fajl',
+      children: <Widget>[
+        TextInput(
+          controller: fileCtrlr,
+          labelText: 'Ime fajl',
+          hintText: 'Ime fajl',
+        ),
+      ],
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(
+            'OTKAŽI',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).accentColor,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () async {
+            Navigator.pop(context);
+            if (fileCtrlr.text.isNotEmpty) {
+              try {
+                await db.renameFile(fileCtrlr.text, widget.fileData);
+              } catch (e) {
+                InfoAlert.show(
+                  context,
+                  title: 'Ups...',
+                  text:
+                      'Došlo je do greške prilikom mijenjanja imena ovog fajla. Pokušajte ponovo.',
+                );
+              }
+            } else {
+              InfoAlert.show(
+                context,
+                title: 'Greška',
+                text:
+                    'Novo ime fajla ne smije biti prazno. Popunite ga, pa pokušajte ponovo.',
+              );
+            }
+          },
+          child: Text(
+            'POTVRDI',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.tealAccent,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   List<PopupMenuEntry<dynamic>> getMenuTiles() {
     final List<PopupMenuEntry<dynamic>> menuTiles = [];
@@ -156,7 +235,7 @@ class FileIcon extends StatelessWidget {
               size: 94.0,
             ),
             Text(
-              '${this.fileData['name']}',
+              '${widget.fileData['name']}',
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
