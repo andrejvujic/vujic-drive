@@ -4,7 +4,11 @@ import 'package:vujic_drive/utils/route_builders.dart';
 
 class FolderIcon extends StatelessWidget {
   final Map<String, dynamic> folderData;
-  FolderIcon({@required this.folderData});
+  final String parentGlobalPath;
+  FolderIcon({
+    @required this.folderData,
+    this.parentGlobalPath,
+  });
 
   final settings = <Map<String, dynamic>>[
     {
@@ -57,6 +61,7 @@ class FolderIcon extends StatelessWidget {
         Folder(
           folderId: this.folderData['id'],
           folderName: this.folderData['name'],
+          folderGlobalPath: '${this.parentGlobalPath}/${this.folderData['id']}',
         ),
       ),
     );

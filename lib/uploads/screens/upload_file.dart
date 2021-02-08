@@ -9,6 +9,9 @@ import 'package:vujic_drive/widgets/loading_overlay.dart';
 class UploadFile extends StatefulWidget {
   @override
   _UploadFileState createState() => _UploadFileState();
+
+  final String folderGlobalPath;
+  UploadFile({this.folderGlobalPath});
 }
 
 class _UploadFileState extends State<UploadFile> {

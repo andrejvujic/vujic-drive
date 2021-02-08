@@ -15,10 +15,11 @@ class Folder extends StatefulWidget {
   @override
   _FolderState createState() => _FolderState();
 
-  final String folderId, folderName;
+  final String folderId, folderName, folderGlobalPath;
   Folder({
     this.folderId = '',
     this.folderName = '',
+    this.folderGlobalPath = '',
   });
 }
 
@@ -152,11 +153,13 @@ class _FolderState extends State<Folder> with TickerProviderStateMixin {
     );
   }
 
-  void createNewFile(BuildContext context) {
+  void createNewFile(BuildContext context, String folderGlobalPath) {
     Navigator.push(
       context,
       RouteBuilders.buildSlideRoute(
-        UploadFile(),
+        UploadFile(
+          folderGlobalPath: folderGlobalPath,
+        ),
       ),
     );
   }
@@ -182,7 +185,10 @@ class _FolderState extends State<Folder> with TickerProviderStateMixin {
                 ListTile(
                   leading: Icon(Icons.file_upload),
                   title: Text('Fajl'),
-                  onTap: () => createNewFile(context),
+                  onTap: () => createNewFile(
+                    context,
+                    widget.folderGlobalPath,
+                  ),
                 ),
               ],
             ),
@@ -234,6 +240,7 @@ class _FolderState extends State<Folder> with TickerProviderStateMixin {
             body: Uploads(
               uid: FirebaseAuth.instance.currentUser.uid,
               folderId: widget.folderId,
+              folderGlobalPath: widget.folderGlobalPath,
             ),
           ),
         );

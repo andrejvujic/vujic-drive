@@ -8,15 +8,19 @@ class Folders extends StatefulWidget {
   @override
   _FoldersState createState() => _FoldersState();
 
-  final String parent;
-  Folders({this.parent = ''});
+  final String parent, parentGlobalPath;
+  Folders({
+    this.parent = '',
+    this.parentGlobalPath = '',
+  });
 }
 
 class _FoldersState extends State<Folders> {
   final db = Database(uid: FirebaseAuth.instance.currentUser.uid);
   final int crossAxisCount = 2;
 
-  List<FolderIcon> getFolderIcons(List<QueryDocumentSnapshot> folders) {
+  List<FolderIcon> getFolderIcons(
+      List<QueryDocumentSnapshot> folders, String parentGlboalPath) {
     final folderIcons = <FolderIcon>[];
 
     for (QueryDocumentSnapshot folder in folders) {
@@ -24,6 +28,7 @@ class _FoldersState extends State<Folders> {
       folderIcons.add(
         FolderIcon(
           folderData: data,
+          parentGlobalPath: parentGlboalPath,
         ),
       );
     }
@@ -49,12 +54,15 @@ class _FoldersState extends State<Folders> {
           );
         }
 
-        final List<QueryDocumentSnapshot> rootFolders = snapshot.data.docs;
+        final List<QueryDocumentSnapshot> folders = snapshot.data.docs;
 
         return Expanded(
           child: GridView.count(
             crossAxisCount: crossAxisCount,
-            children: getFolderIcons(rootFolders),
+            children: getFolderIcons(
+              folders,
+              widget.parentGlobalPath,
+            ),
           ),
         );
       },

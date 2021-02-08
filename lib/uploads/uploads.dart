@@ -7,8 +7,12 @@ class Uploads extends StatefulWidget {
   _UploadsState createState() => _UploadsState();
 
   final String uid;
-  final String folderId;
-  Uploads({@required this.uid, this.folderId = ''});
+  final String folderId, folderGlobalPath;
+  Uploads({
+    @required this.uid,
+    this.folderId = '',
+    this.folderGlobalPath = '',
+  });
 }
 
 class _UploadsState extends State<Uploads> {
@@ -18,6 +22,7 @@ class _UploadsState extends State<Uploads> {
       children: <Widget>[
         Folders(
           parent: widget.folderId,
+        parentGlobalPath: widget.folderGlobalPath,
         ),
         Divider(
           color: Theme.of(context).primaryColor,
