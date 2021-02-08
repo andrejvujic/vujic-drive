@@ -35,6 +35,7 @@ class Database {
       'allowAccessTo': <String>[
         this.uid,
       ],
+      'downloadUrl': downloadUrl,
     };
 
     await this.files.doc(id).set(data);
